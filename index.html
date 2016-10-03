@@ -543,14 +543,14 @@
               var mred = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
                 icon: red_icon
               });
-              mred.bindPopup('<a href="' + event.path + '" class="maplink maplinkred">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+              mred.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkred">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
               markers_red.addLayer(mred);
               break;
             default:
               var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
                 icon: green_icon
               });
-              mgreen.bindPopup('<a href="' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+              mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
               markers_green.addLayer(mgreen);
               break;
           }
