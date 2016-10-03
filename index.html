@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script type="text/javascript">
+    // Vous savez coder et vous voulez aider ? RDV sur https://chat.coders.jlm2017.fr/
+  </script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Groupes d'appui les plus proches - JLM 2017</title>
+
+  <script>
+    (function(i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function() {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-57940932-3', 'auto');
+    ga('send', 'pageview');
+  </script>
+
+  <link rel="stylesheet" href="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.5.0/MarkerCluster.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.5.0/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="https://cdn.rawgit.com/smeijer/L.GeoSearch/develop/src/css/l.geosearch.css">
+
+  <style>
+    html, body {
+      width: 100%;
+      margin: 0;
+      height: 100%;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    a.maplink {
+      font-size: 15px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    a.maplink:hover {
+      text-decoration: underline;
+    }
+
+    a.maplinkblue,
+    .layer-control-blue {
+      color: #0098b6;
+    }
+
+    a.maplinkred,
+    .layer-control-red {
+      color: #c9462c;
+    }
+
+    a.maplinkgreen,
+    .layer-control-green {
+      color: rgb(0, 180, 0);
+    }
+
+    .marker-cluster-blue div {
+      background-color: rgba(0, 100, 150, 0.6);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .marker-cluster-blue {
+      background-color: rgba(0, 202, 232, 0.6);
+    }
+
+    .marker-cluster-red div {
+      background-color: rgba(200, 70, 40, 0.6);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .marker-cluster-red {
+      background-color: rgba(50, 230, 50, 0.6);
+    }
+
+    .marker-cluster-green div {
+      background-color: rgba(0, 160, 0, 0.6);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .marker-cluster-green {
+      background-color: rgba(50, 230, 50, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.5.0/leaflet.markercluster.js"></script>
+  <script>
+    /*
+    * L.Control.GeoSearch - search for an address and zoom to its location
+    * https://github.com/smeijer/L.GeoSearch
+    */
+
+    L.GeoSearch = {};
+    L.GeoSearch.Provider = {};
+
+    L.GeoSearch.Result = function (x, y, label, bounds, details) {
+    this.X = x;
+    this.Y = y;
+    this.Label = label;
+    this.bounds = bounds;
+
+    if (details)
+      this.details = details;
+    };
+
+    L.Control.GeoSearch = L.Control.extend({
+      options: {
+        position: 'topleft',
+        showMarker: true,
+        showPopup: false,
+        customIcon: false,
+        retainZoomLevel: false,
+        draggable: false
+      },
+
+      _config: {
+        country: '',
+        searchLabel: 'Enter address',
+        notFoundMessage: 'Sorry, that address could not be found.',
+        messageHideDelay: 3000,
+        zoomLevel: 18
+      },
+
+      initialize: function (options) {
+        L.Util.extend(this.options, options);
+        L.Util.extend(this._config, options);
+      },
+
+      resetLink: function(extraClass) {
+        var link = this._container.querySelector('a');
+        link.className = 'leaflet-bar-part leaflet-bar-part-single' + ' ' + extraClass;
+      },
+
+      onAdd: function (map) {
+        this._container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-geosearch');
+
+        // create the link - this will contain one of the icons
+        var link = L.DomUtil.create('a', '', this._container);
+        link.href = '#';
+        link.title = this._config.searchLabel;
+
+        // set the link's icon to magnifying glass
+        this.resetLink('glass');
+
+        // create the form that will contain the input
+        var form = L.DomUtil.create('form', '', this._container);
+
+        // create the input, and set its placeholder text
+        var searchbox = L.DomUtil.create('input', null, form);
+        searchbox.type = 'text';
+        searchbox.placeholder = this._config.searchLabel;
+        this._searchbox = searchbox;
+
+        var msgbox = L.DomUtil.create('div', 'leaflet-bar message displayNone', this._container);
+        this._msgbox = msgbox;
+
+        L.DomEvent
+          .on(link, 'click', L.DomEvent.stopPropagation)
+          .on(link, 'click', L.DomEvent.preventDefault)
+          .on(link, 'click', function() {
+
+            if (L.DomUtil.hasClass(form, 'displayNone')) {
+              L.DomUtil.removeClass(form, 'displayNone'); // unhide form
+              searchbox.focus();
+            } else {
+              L.DomUtil.addClass(form, 'displayNone'); // hide form
+            }
+
+          })
+          .on(link, 'dblclick', L.DomEvent.stopPropagation);
+
+        L.DomEvent
+          .addListener(this._searchbox, 'keypress', this._onKeyPress, this)
+          .addListener(this._searchbox, 'keyup', this._onKeyUp, this)
+          .addListener(this._searchbox, 'input', this._onInput, this);
+
+        L.DomEvent.disableClickPropagation(this._container);
+
+        return this._container;
+      },
+
+      geosearch: function (qry) {
+        var that = this;
+        try {
+          var provider = this._config.provider;
+
+          if(typeof provider.GetLocations == 'function') {
+            provider.GetLocations(qry, function(results) {
+              that._processResults(results, qry);
+            });
+          }
+          else {
+            var url = provider.GetServiceUrl(qry);
+            this.sendRequest(provider, url, qry);
+          }
+        }
+        catch (error) {
+          this._printError(error);
+        }
+      },
+
+      cancelSearch: function() {
+        var form = this._container.querySelector('form');
+        L.DomUtil.addClass(form, 'displayNone');
+
+        this._searchbox.value = '';
+        this.resetLink('glass');
+
+        L.DomUtil.addClass(this._msgbox, 'displayNone');
+
+        this._map._container.focus();
+      },
+
+      startSearch: function() {
+        // show spinner icon
+        this.resetLink('spinner');
+        this.geosearch(this._searchbox.value);
+      },
+
+      sendRequest: function (provider, url, qry) {
+        var that = this;
+
+        window.parseLocation = function (response) {
+          var results = provider.ParseJSON(response);
+          that._processResults(results, qry);
+
+          document.body.removeChild(document.getElementById('getJsonP'));
+          delete window.parseLocation;
+        };
+
+        function getJsonP (url) {
+          url = url + '&callback=parseLocation';
+          var script = document.createElement('script');
+          script.id = 'getJsonP';
+          script.src = url;
+          script.async = true;
+          document.body.appendChild(script);
+        }
+
+        if (XMLHttpRequest) {
+          var xhr = new XMLHttpRequest();
+
+          if ('withCredentials' in xhr) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                  var response = JSON.parse(xhr.responseText),
+                    results = provider.ParseJSON(response);
+
+                  that._processResults(results, qry);
+                } else if (xhr.status == 0 || xhr.status == 400) {
+                  getJsonP(url);
+                } else {
+                  that._printError(xhr.responseText);
+                }
+              }
+            };
+
+            xhr.open('GET', url, true);
+            xhr.send();
+          } else if (XDomainRequest) {
+            var xdr = new XDomainRequest();
+
+            xdr.onerror = function (err) {
+              that._printError(err);
+            };
+
+            xdr.onload = function () {
+              var response = JSON.parse(xdr.responseText),
+                results = provider.ParseJSON(response);
+
+              that._processResults(results, qry);
+            };
+
+            xdr.open('GET', url);
+            xdr.send();
+          } else {
+            getJsonP(url);
+          }
+        }
+      },
+
+      _processResults: function(results, qry) {
+        if (results.length > 0) {
+          this._map.fireEvent('geosearch_foundlocations', {Locations: results});
+          this._showLocation(results[0], qry);
+          this.cancelSearch();
+        } else {
+          this._printError(this._config.notFoundMessage);
+        }
+      },
+
+      _showLocation: function (location, qry) {
+        if (this.options.showMarker == true) {
+          if (typeof this._positionMarker === 'undefined') {
+            this._positionMarker = L.marker(
+              [location.Y, location.X],
+              {draggable: this.options.draggable}
+            ).addTo(this._map);
+            if( this.options.customIcon ) {
+              this._positionMarker.setIcon(this.options.customIcon);
+            }
+            if( this.options.showPopup ) {
+               this._positionMarker.bindPopup(qry).openPopup();
+            }
+          }
+          else {
+            this._positionMarker.setLatLng([location.Y, location.X]);
+            if( this.options.showPopup ) {
+               this._positionMarker.bindPopup(qry).openPopup();
+            }
+          }
+        }
+        if (!this.options.retainZoomLevel && location.bounds && location.bounds.isValid()) {
+          this._map.fitBounds(location.bounds);
+        }
+        else {
+          this._map.setView([location.Y, location.X], this._getZoomLevel(), false);
+        }
+
+        this._map.fireEvent('geosearch_showlocation', {
+          Location: location,
+          Marker : this._positionMarker
+        });
+      },
+
+      _isShowingError: false,
+
+      _printError: function(message) {
+        this._msgbox.innerHTML = message;
+        L.DomUtil.removeClass(this._msgbox, 'displayNone');
+
+        this._map.fireEvent('geosearch_error', {message: message});
+
+        // show alert icon
+        this.resetLink('alert');
+        this._isShowingError = true;
+      },
+
+      _onKeyUp: function (e) {
+        var esc = 27;
+
+        if (e.keyCode === esc) { // escape key detection is unreliable
+          this.cancelSearch();
+        }
+      },
+
+      _getZoomLevel: function() {
+        if (! this.options.retainZoomLevel) {
+          return this._config.zoomLevel;
+        }
+        return this._map._zoom;
+      },
+
+      _onInput: function() {
+        if (this._isShowingError) {
+          this.resetLink('glass');
+          L.DomUtil.addClass(this._msgbox, 'displayNone');
+
+          this._isShowingError = false;
+        }
+      },
+
+      _onKeyPress: function (e) {
+        var enterKey = 13;
+
+        if (e.keyCode === enterKey) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          this.startSearch();
+        }
+      }
+    });
+
+    /**
+    * L.Control.GeoSearch - search for an address and zoom to it's location
+    * L.GeoSearch.Provider.OpenStreetMap uses openstreetmap geocoding service
+    * https://github.com/smeijer/L.GeoSearch
+    */
+
+    L.GeoSearch.Provider.OpenStreetMap = L.Class.extend({
+      options: {},
+
+      initialize: function(options) {
+        options = L.Util.setOptions(this, options);
+      },
+
+      GetServiceUrl: function (qry) {
+        var parameters = L.Util.extend({
+          q: qry,
+          format: 'json'
+        }, this.options);
+
+        return (location.protocol === 'https:' ? 'https:' : 'http:')
+          + '//nominatim.openstreetmap.org/search'
+          + L.Util.getParamString(parameters);
+      },
+
+      ParseJSON: function (data) {
+        var results = [];
+
+        for (var i = 0; i < data.length; i++) {
+          var boundingBox = data[i].boundingbox,
+            northEastLatLng = new L.LatLng( boundingBox[1], boundingBox[3] ),
+            southWestLatLng = new L.LatLng( boundingBox[0], boundingBox[2] );
+
+          if (data[i].address)
+            data[i].address.type = data[i].type;
+
+          results.push(new L.GeoSearch.Result(
+            data[i].lon,
+            data[i].lat,
+            data[i].display_name,
+            new L.LatLngBounds([
+              northEastLatLng,
+              southWestLatLng
+            ]),
+            data[i].address
+          ));
+        }
+
+        return results;
+      }
+    });
+
+    /**
+     * Map code
+     */
+
+    var red_ico = L.Icon.Default.extend({
+      options: {
+        iconUrl: 'https://www.k6op.fr/jlmap/marker-icon-red.png'
+      }
+    });
+    var red_icon = new red_ico;
+
+    var green_ico = L.Icon.Default.extend({
+      options: {
+        iconUrl: 'https://www.k6op.fr/jlmap/marker-icon-green.png'
+      }
+    });
+    var green_icon = new green_ico;
+
+    var tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: '<a href="http://osm.org/copyright">OpenStreetMap</a>'
+    });
+    var latlng = L.latLng(43, 2);
+    var map = L.map('map', {
+      center: latlng,
+      zoom: 6,
+      layers: [tiles]
+    });
+
+    var markers_green = L.markerClusterGroup({
+      iconCreateFunction: function(cluster) {
+        return L.divIcon({
+          html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+          className: 'marker-cluster marker-cluster-green',
+          iconSize: new L.Point(40, 40)
+        });
+      }
+    });
+
+    var markers_blue = L.markerClusterGroup({
+      iconCreateFunction: function(cluster) {
+        return L.divIcon({
+          html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+          className: 'marker-cluster marker-cluster-blue',
+          iconSize: new L.Point(40, 40)
+        });
+      }
+    });
+
+    var markers_red = L.markerClusterGroup({
+      iconCreateFunction: function(cluster) {
+        return L.divIcon({
+          html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+          className: 'marker-cluster marker-cluster-red',
+          iconSize: new L.Point(40, 40)
+        });
+      }
+    });
+
+    var limites = [
+      [41.783787, 9.587328],
+      [51.352263, -4.627801]
+    ];
+    map.fitBounds(limites);
+    var r = new XMLHttpRequest();
+    r.open('GET', 'https://api.jlm2017.fr/groups', true);
+    r.setRequestHeader('Accept', 'application/json');
+    r.onreadystatechange = function() {
+      if (r.readyState != 4 || r.status != 200) return;
+
+      var data = JSON.parse(r.responseText);
+
+      for (var i = 0; i < data._items.length; i++) {
+        var event = data._items[i];
+        if (event.coordinates) {
+          var mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
+          mblue.bindPopup('<a href="' + event.path + '" class="maplink maplinkblue">' + event.name + '</a><br/>Groupe d\'appui');
+          markers_blue.addLayer(mblue);
+        }
+      }
+    };
+    r.send();
+
+    var r2 = new XMLHttpRequest();
+    r2.open('GET', 'https://api.jlm2017.fr/events?where={"startTime": {"$gt": "' + new Date().toUTCString() + '"}}', true);
+    r2.setRequestHeader('Accept', 'application/json');
+    r2.onreadystatechange = function() {
+      if (r2.readyState != 4 || r2.status != 200) return;
+
+      var data = JSON.parse(r2.responseText);
+
+      for (var i = 0; i < data._items.length; i++) {
+        var event = data._items[i];
+        if (event.coordinates) {
+          switch (event.agenda) {
+            case 'melenchon':
+              var mred = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                icon: red_icon
+              });
+              mred.bindPopup('<a href="' + event.path + '" class="maplink maplinkred">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+              markers_red.addLayer(mred);
+              break;
+            default:
+              var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                icon: green_icon
+              });
+              mgreen.bindPopup('<a href="' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+              markers_green.addLayer(mgreen);
+              break;
+          }
+        }
+      }
+    };
+    r2.send();
+
+    map.addLayer(markers_green);
+    map.addLayer(markers_blue);
+    map.addLayer(markers_red);
+
+    var overlayMaps = {
+      '<span class="layer-control-green">Événements</span>': markers_green,
+      '<span class="layer-control-blue">Groupes</span>': markers_blue,
+      '<span class="layer-control-red">Agenda de JLM</span>': markers_red
+    };
+
+    L.control.layers(null, overlayMaps, {
+      collapsed: false
+    }).addTo(map);
+
+    new L.Control.GeoSearch({
+      provider: new L.GeoSearch.Provider.OpenStreetMap(),
+      //position: 'topcenter',
+      showMarker: false,
+      searchLabel: 'Rechercher une adresse...'
+    }).addTo(map);
+  </script>
+</body>
+</html>
