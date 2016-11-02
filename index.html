@@ -144,6 +144,17 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
       }
 
+     function httpGetJson(url, onSuccess) {
+        var r = new XMLHttpRequest();
+        r.open('GET', url, true);
+        r.setRequestHeader('Accept', 'application/json');
+        r.onreadystatechange = function() {
+            if (r.readyState != 4 || r.status != 200) return;
+            onSuccess(JSON.parse(r.responseText));
+        };
+        r.send();
+      }
+
     /**
      * Map code
      */
@@ -223,7 +234,43 @@
       [41.783787, 9.587328],
       [51.352263, -4.627801]
     ];
+
     map.fitBounds(limites);
+
+    // If zipcode is defined, zoom on it
+    if (getQueryParameterByName('zipcode')) {
+      httpGetJson('//api-adresse.data.gouv.fr/search/?q='+ code_postal + '&postcode=' + code_postal, function(data) {
+        if (data.features.length == 0) return;
+
+        var coordinates = data.features[0].geometry.coordinates;
+        map.setView([coordinates[1], coordinates[0]], 12);
+
+        httpGetJson('https://api.jlm2017.fr/groups?where={"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}}&max_results=4', function(data) {
+            if (data._items.length == 0) return;
+            // Coordinates of rectangle around 4 groups.
+            var min_lat = data._items[0].coordinates.coordinates[1];
+            var min_long =  data._items[0].coordinates.coordinates[0];
+            var max_lat = data._items[0].coordinates.coordinates[1];
+            var max_long = data._items[0].coordinates.coordinates[0];
+            for (var i = 1; i < data._items.length ; i++) {
+                min_lat = Math.min(min_lat, data._items[i].coordinates.coordinates[1]);
+                min_long = Math.min(min_long, data._items[i].coordinates.coordinates[0]);
+                max_lat = Math.max(max_lat, data._items[i].coordinates.coordinates[1]);
+                max_long = Math.max(max_long, data._items[i].coordinates.coordinates[0]);
+            }
+
+            var padding_fix = 0.0002;
+
+            map.fitBounds(
+              L.latLngBounds(
+                L.latLng(min_lat-padding_fix, min_long-padding_fix),
+                L.latLng(max_lat+padding_fix, max_long+padding_fix)
+              )
+            );
+        });
+      });
+    }
+
     var r = new XMLHttpRequest();
     r.open('GET', 'https://api.jlm2017.fr/groups', true);
     r.setRequestHeader('Accept', 'application/json');
