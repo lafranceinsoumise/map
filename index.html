@@ -234,12 +234,12 @@
       [41.783787, 9.587328],
       [51.352263, -4.627801]
     ];
-
     map.fitBounds(limites);
 
     // If zipcode is defined, zoom on it
     if (getQueryParameterByName('zipcode')) {
-      httpGetJson('//api-adresse.data.gouv.fr/search/?q='+ code_postal + '&postcode=' + code_postal, function(data) {
+      var zipcode = getQueryParameterByName('zipcode');
+      httpGetJson('//api-adresse.data.gouv.fr/search/?q='+ zipcode + '&postcode=' + zipcode, function(data) {
         if (data.features.length == 0) return;
 
         var coordinates = data.features[0].geometry.coordinates;
