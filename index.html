@@ -134,16 +134,15 @@
     /**
      * Utilities
      */
-
      function getQueryParameterByName(name) {
-       var url = window.location.href;
-       name = name.replace(/[\[\]]/g, "\\$&");
-       var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-               results = regex.exec(url);
-       if (!results) return null;
-       if (!results[2]) return '';
-       return decodeURIComponent(results[2].replace(/\+/g, " "));
-     }
+        var url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+      }
 
     /**
      * Map code
@@ -285,10 +284,18 @@
     };
     r2.send();
 
-    map.addLayer(markers_green);
-    map.addLayer(markers_darkgreen);
-    map.addLayer(markers_blue);
-    map.addLayer(markers_red);
+    var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon';
+    if (embedEventType) {
+      var tabEventType = embedEventType.split(',');
+      if (tabEventType.indexOf('groups') > -1)
+        map.addLayer(markers_blue);
+      if (tabEventType.indexOf('evenements_locaux') > -1)
+        map.addLayer(markers_green);
+      if (tabEventType.indexOf('reunions_circonscription') > -1)
+        map.addLayer(markers_darkgreen);
+      if (tabEventType.indexOf('melenchon') > -1)
+        map.addLayer(markers_red);
+    }
 
     var overlayMaps = {
       '<span class="layer-control-green">Événements</span>': markers_green,
