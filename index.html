@@ -370,7 +370,7 @@
     var embedCirconscription = getQueryParameterByName('circonscriptions');
 
     if (embedCirconscription && embedCirconscription == 1) {
-      var circonscriptions = httpGetJson('/circo_json.json', function(data) {
+      var circonscriptions = httpGetJson('circo_json.json', function(data) {
         data.forEach(function(element) {
           var str = JSON.stringify(element);
           L.geoJson(element.geojson, {style: "red"}).addTo(map);
