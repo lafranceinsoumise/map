@@ -18,6 +18,15 @@ Include it on web pages with `iframe`, such as :
 ```
 <iframe
   style="border: none; margin: 0 0; padding: 0 0; width: 80%; height: 400px"
-  src="https://jlm2017.github.io/closest-groups-map/?postal=[code-postal]">
+  src="https://jlm2017.github.io/closest-groups-map/?zipcode=[code-postal]">
+</iframe>
+```
+
+### Circonscriptions
+
+```
+<iframe
+  style="border: none; margin: 0 0; padding: 0 0; width: 80%; height: 400px"
+  src="https://jlm2017.github.io/closest-groups-map/?circonscriptions=1">
 </iframe>
 ```
