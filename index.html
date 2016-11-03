@@ -361,6 +361,22 @@
       showMarker: false,
       searchLabel: 'Rechercher une adresse...'
     }).addTo(map);
+
+    /**
+    * Polygon des circonscriptions
+    * on reutilise la fonction juste au dessus
+    **/
+
+    var embedCirconscription = getQueryParameterByName('circonscriptions');
+
+    if (embedCirconscription && embedCirconscription == 1) {
+      var circonscriptions = httpGetJson('/circo_json.json', function(data) {
+        data.forEach(function(element) {
+          var str = JSON.stringify(element);
+          L.geoJson(element.geojson, {style: "red"}).addTo(map);
+        });
+      });
+    }
   </script>
 </body>
 </html>
