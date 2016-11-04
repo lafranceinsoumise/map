@@ -113,6 +113,14 @@
     .marker-cluster-darkgreen {
       background-color: rgba(50, 230, 50, 0.6);
     }
+
+    .info {
+      padding: 0px 8px;
+      /*font: 14px/16px Arial, Helvetica, sans-serif;*/
+      background: rgba(9, 9, 9, 0.7);
+      border-radius: 5px;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -367,13 +375,79 @@
     * on reutilise la fonction juste au dessus
     **/
 
+
     var embedCirconscription = getQueryParameterByName('circonscriptions');
 
     if (embedCirconscription && embedCirconscription == 1) {
+      // control that shows circonscriptions info on hover
+      var info = L.control();
+      var geojson;
+
+      info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info');
+        this.update();
+        return this._div;
+      };
+
+      info.update = function (props) {
+        this._div.innerHTML = (props ?
+          '<p><b>Département n°' + props.departement + '<br />' +
+          'Circonscription n°' + props.circonscription + '</b></p>'
+          : 'Survolez une circonscription.');
+      };
+
+      function onEachFeature(feature, layer) {
+        function highlightFeature(e) {
+          var layer = e.target;
+          info.addTo(map);
+
+          layer.setStyle({
+            weight: 5,
+            color: '#ea0e0e',
+            dashArray: '',
+            fillOpacity: 0.0
+          });
+
+          if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+            layer.bringToFront();
+          }
+          info.update(layer.feature.properties);
+        }
+
+
+        function resetHighlight(e) {
+          geojson.resetStyle(e.target);
+          info.update();
+          info.removeFrom(map)
+        }
+
+        function zoomToFeature(e) {
+          map.fitBounds(e.target.getBounds());
+        }
+
+        layer.on({
+          mouseover: highlightFeature,
+          mouseout: resetHighlight,
+          click: zoomToFeature
+        });
+      }
+
+      var style = {
+        weight: 2,
+        opacity: 1,
+        color: 'blue',
+        dashArray: '3',
+        fillOpacity: 0.5
+      }
+
       var circonscriptions = httpGetJson('circo_json.json', function(data) {
         data.forEach(function(element) {
-          var str = JSON.stringify(element);
-          L.geoJson(element.geojson, {style: "red"}).addTo(map);
+          if (element.geojson.features[0])
+          {
+            element.geojson.features[0].properties.departement = element.departement;
+            element.geojson.features[0].properties.circonscription = element.numero;
+          }
+          geojson = L.geoJson(element.geojson, {style: style, onEachFeature: onEachFeature}).addTo(map);
         });
       });
     }
