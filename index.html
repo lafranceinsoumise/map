@@ -116,7 +116,6 @@
 
     .info {
       padding: 0px 8px;
-      /*font: 14px/16px Arial, Helvetica, sans-serif;*/
       background: rgba(9, 9, 9, 0.7);
       border-radius: 5px;
       color: #fff;
@@ -352,20 +351,21 @@
         map.addLayer(markers_red);
     }
 
-    var overlayMaps = {
-      '<span class="layer-control-green">Événements</span>': markers_green,
-      //'<span class="layer-control-darkgreen">Réunions circonscriptions</span>': markers_darkgreen,
-      '<span class="layer-control-blue">Groupes</span>': markers_blue,
-      '<span class="layer-control-red">Agenda de JLM</span>': markers_red
-    };
+    var hidePanel = getQueryParameterByName('hide_panel');
+    if (!hidePanel || hidePanel != 1) {
+      var overlayMaps = {
+        '<span class="layer-control-green">Événements</span>': markers_green,
+        '<span class="layer-control-blue">Groupes</span>': markers_blue,
+        '<span class="layer-control-red">Agenda de JLM</span>': markers_red
+      };
 
-    L.control.layers(null, overlayMaps, {
-      collapsed: false
-    }).addTo(map);
+      L.control.layers(null, overlayMaps, {
+        collapsed: false
+      }).addTo(map);
+    }
 
     new L.Control.GeoSearch({
       provider: new L.GeoSearch.Provider.OpenStreetMap(),
-      //position: 'topcenter',
       showMarker: false,
       searchLabel: 'Rechercher une adresse...'
     }).addTo(map);
