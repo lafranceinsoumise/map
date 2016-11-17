@@ -23,10 +23,7 @@ Example :
 </iframe>
 ```
 
-`event_type`: a column-separated list of event types to display. Available event_types are `groups`, `evenements_locaux`, `melenchon`, and `reunions_circonscription`. Default value is `groups,evenements_locaux,melenchon`
-
-`zipcode`: a french postal code to zoom in. The map tries to include the 4 closest groups or events (depending on the first element of `event_type`).
-
-`circonscriptions`: 0 or 1, displays the bounding of Grench electoral circonscriptions in the background. Default value: 0.
-
-`hide_panel`: 0 or 1, hide the panel. Default value: 0.
+* `event_type`: a column-separated list of event types to display. Available event_types are `groups`, `evenements_locaux`, `melenchon`, and `reunions_circonscription`. Default value is `groups,evenements_locaux,melenchon`
+* `zipcode`: a french postal code to zoom in. The map tries to include the 4 closest groups or events (depending on the first element of `event_type`).
+* `circonscriptions`: 0 or 1, displays the bounding of Grench electoral circonscriptions in the background. Default value: 0.
+* `hide_panel`: 0 or 1, hide the panel. Default value: 0.
