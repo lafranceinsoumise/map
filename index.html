@@ -243,6 +243,8 @@
     ];
     map.fitBounds(limites);
 
+    var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon';
+
     // If zipcode is defined, zoom on it
     if (getQueryParameterByName('zipcode')) {
       var zipcode = getQueryParameterByName('zipcode');
@@ -252,7 +254,16 @@
         var coordinates = data.features[0].geometry.coordinates;
         map.setView([coordinates[1], coordinates[0]], 12);
 
-        httpGetJson('https://api.jlm2017.fr/groups?where={"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}}&max_results=4', function(data) {
+        var urlZoomApi;
+
+        if (embedEventType.split(',')[0] == 'groups'){
+
+          urlZoomApi = 'https://api.jlm2017.fr/groups?where={"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}}&max_results=4';
+        }
+        else {
+          urlZoomApi = 'https://api.jlm2017.fr/events?where={"agenda": "' + embedEventType.split(',')[0] + '" ,"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}}&max_results=4';
+        }
+        httpGetJson(urlZoomApi, function(data) {
             if (data._items.length == 0) return;
             // Coordinates of rectangle around 4 groups.
             var min_lat = data._items[0].coordinates.coordinates[1];
@@ -338,7 +349,6 @@
     };
     r2.send();
 
-    var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon';
     if (embedEventType) {
       var tabEventType = embedEventType.split(',');
       if (tabEventType.indexOf('groups') > -1)
