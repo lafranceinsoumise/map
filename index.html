@@ -244,6 +244,7 @@
     map.fitBounds(limites);
 
     var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon';
+    var embedTags = (getQueryParameterByName('tags') || '').split(',');
 
     // If zipcode is defined, zoom on it
     if (getQueryParameterByName('zipcode')) {
@@ -258,10 +259,16 @@
 
         if (embedEventType.split(',')[0] == 'groups'){
 
-          urlZoomApi = 'https://api.jlm2017.fr/groups?where={"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}}&max_results=4';
+          urlZoomApi = 'https://api.jlm2017.fr/groups?where={"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}';
+          if (embedTags != '')
+            urlZoomApi += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
+          urlZoomApi += '}&max_results=4';
         }
         else {
-          urlZoomApi = 'https://api.jlm2017.fr/events?where={"agenda": "' + embedEventType.split(',')[0] + '" ,"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}}&max_results=4';
+          urlZoomApi = 'https://api.jlm2017.fr/events?where={"agenda": "' + embedEventType.split(',')[0] + '" ,"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}';
+          if (embedTags != '')
+            urlZoomApi += ',,"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
+          urlZoomApi += '}&max_results=4';
         }
         httpGetJson(urlZoomApi, function(data) {
             if (data._items.length == 0) return;
@@ -290,7 +297,10 @@
     }
 
     var r = new XMLHttpRequest();
-    r.open('GET', 'https://api.jlm2017.fr/groups', true);
+    var url ='https://api.jlm2017.fr/groups'
+    if (embedTags != '')
+      url += '?where={"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} } }';
+    r.open('GET', url, true);
     r.setRequestHeader('Accept', 'application/json');
     r.onreadystatechange = function() {
       if (r.readyState != 4 || r.status != 200) return;
@@ -307,9 +317,12 @@
       }
     };
     r.send();
-
+    var url2 = 'https://api.jlm2017.fr/events?where={"startTime": {"$gt": "' + new Date().toUTCString() + '"}'
+    if (embedTags != '')
+      url2 += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
+    url2 += '}';
     var r2 = new XMLHttpRequest();
-    r2.open('GET', 'https://api.jlm2017.fr/events?where={"startTime": {"$gt": "' + new Date().toUTCString() + '"}}', true);
+    r2.open('GET', url2, true);
     r2.setRequestHeader('Accept', 'application/json');
     r2.onreadystatechange = function() {
       if (r2.readyState != 4 || r2.status != 200) return;
