@@ -393,11 +393,16 @@
       }).addTo(map);
     }
 
-    new L.Control.GeoSearch({
-      provider: new L.GeoSearch.Provider.OpenStreetMap(),
-      showMarker: false,
-      searchLabel: 'Rechercher une adresse...'
-    }).addTo(map);
+
+    var hideAddress = getQueryParameterByName('hide_address');
+
+    if (!hideAddress || hideAddress != 1) {
+      new L.Control.GeoSearch({
+        provider: new L.GeoSearch.Provider.OpenStreetMap(),
+        showMarker: false,
+        searchLabel: 'Rechercher une adresse...'
+      }).addTo(map);
+    }
 
     /**
     * Polygon des circonscriptions
