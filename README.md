@@ -16,10 +16,10 @@ Include it on web pages with `iframe`, such as :
 Params are passed to the app using query variables :
 
 Example :
-```
+```html
 <iframe
   style="border: none; margin: 0 0; padding: 0 0; width: 80%; height: 400px"
-  src="https://jlm2017.github.io/closest-groups-map/?zipcode=[code-postal]&event_type=melenchon&circonscriptions=1">
+  src="https://jlm2017.github.io/map/?zipcode=[code-postal]&event_type=melenchon&circonscriptions=1">
 </iframe>
 ```
 
