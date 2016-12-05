@@ -180,6 +180,13 @@
     });
     var green_icon = new green_ico;
 
+    var phi_ico = L.Icon.Default.extend({
+      options: {
+        iconUrl: 'marker-icon-phi.png'
+      }
+    });
+    var phi_icon = new phi_ico;
+
     var dark_green_ico = L.Icon.Default.extend({
       options: {
         iconUrl: 'marker-icon-darkgreen.png'
@@ -205,6 +212,17 @@
         return L.divIcon({
           html: '<div><span>' + cluster.getChildCount() + '</span></div>',
           className: 'marker-cluster marker-cluster-green',
+          iconSize: new L.Point(40, 40)
+        });
+      }
+    });
+
+    var markers_darkgreen = L.markerClusterGroup({
+      maxClusterRadius: (!noCluster || noCluster != 1)? 80 : undefined,
+      iconCreateFunction: function(cluster) {
+        return L.divIcon({
+          html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+          className: 'marker-cluster marker-cluster-darkgreen',
           iconSize: new L.Point(40, 40)
         });
       }
@@ -348,7 +366,7 @@
               break;
             case 'evenements_locaux':
               var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                icon: green_icon
+                icon: event.tags.indexOf('point vente programme') === - 1 ? green_icon : phi_icon
               });
               mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
               markers_green.addLayer(mgreen);
