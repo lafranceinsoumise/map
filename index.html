@@ -365,8 +365,9 @@
               markers_red.addLayer(mred);
               break;
             case 'evenements_locaux':
+              var date = new Date(event.startTime);
               var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                icon: event.tags.indexOf('point vente programme') === - 1 ? green_icon : phi_icon
+                icon: new Date('2016-12-09T00:00:00.000') < date && date < new Date('2016-12-11T23:59:59.999') ? green_icon : phi_icon
               });
               mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
               markers_green.addLayer(mgreen);
