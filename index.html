@@ -341,7 +341,16 @@
       }
     };
     r.send();
-    var url2 = 'https://api.jlm2017.fr/events?where={"startTime": {"$gt": "' + new Date().toUTCString() + '"}'
+
+    // Get actual date and set it at the beginning of the day
+    var now = new Date();
+    now.setHours(0);
+    now.setMinutes(0);
+    now.setSeconds(0);
+
+    // Url to call to retrieve events
+    var url2 = 'https://api.jlm2017.fr/events?where={"startTime": {"$gt": "' + now.toUTCString() + '"}';
+
     if (embedTags != '')
       url2 += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
     url2 += '}';
