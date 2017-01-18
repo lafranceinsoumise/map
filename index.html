@@ -269,6 +269,7 @@
 
     var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon';
     var embedTags = (getQueryParameterByName('tags') || '').split(',');
+    var embedEventId = getQueryParameterByName('event_id') || '';
 
     // If zipcode is defined, zoom on it
     if (getQueryParameterByName('zipcode')) {
@@ -322,14 +323,25 @@
 
     var r = new XMLHttpRequest();
     var url ='https://api.jlm2017.fr/groups'
-    if (embedTags != '')
-      url += '?where={"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} } }';
+    if (embedTags != '' || embedEventId != '') {
+      url += '?where={';
+      if (embedTags != '')
+        url += '"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
+      if (embedEventId != '') {
+        if (embedTags != '')
+          url += ',';
+        url += '"id": ' + embedEventId;
+      }
+      url += ' }';
+    }
     r.open('GET', url, true);
     r.setRequestHeader('Accept', 'application/json');
     r.onreadystatechange = function() {
       if (r.readyState != 4 || r.status != 200) return;
 
       var data = JSON.parse(r.responseText);
+      if (embedEventId != '' && data._items.length > 0)
+        map.setView([data._items[0].coordinates.coordinates[1], data._items[0].coordinates.coordinates[0]], 16);
 
       for (var i = 0; i < data._items.length; i++) {
         var event = data._items[i];
@@ -353,6 +365,8 @@
 
     if (embedTags != '')
       url2 += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
+    if (embedEventId != '')
+      url2 += ',"id": ' + embedEventId;
     url2 += '}';
     var r2 = new XMLHttpRequest();
     r2.open('GET', url2, true);
@@ -361,6 +375,8 @@
       if (r2.readyState != 4 || r2.status != 200) return;
 
       var data = JSON.parse(r2.responseText);
+      if (embedEventId != '' && data._items.length > 0)
+        map.setView([data._items[0].coordinates.coordinates[1], data._items[0].coordinates.coordinates[0]], 16);
 
       for (var i = 0; i < data._items.length; i++) {
         var event = data._items[i];
