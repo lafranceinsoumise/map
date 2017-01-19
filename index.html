@@ -204,8 +204,10 @@
       layers: [tiles]
     });
 
+    //option no cluster on the map
     var noCluster = getQueryParameterByName('no_cluster');
-
+    //configuration of the map's markers
+      //evenements_locaux
     var markers_green = L.markerClusterGroup({
       maxClusterRadius: (!noCluster || noCluster != 1)? 80 : undefined,
       iconCreateFunction: function(cluster) {
@@ -216,7 +218,7 @@
         });
       }
     });
-
+      //reunions_circonscription
     var markers_darkgreen = L.markerClusterGroup({
       maxClusterRadius: (!noCluster || noCluster != 1)? 80 : undefined,
       iconCreateFunction: function(cluster) {
@@ -227,18 +229,7 @@
         });
       }
     });
-
-    var markers_darkgreen = L.markerClusterGroup({
-      maxClusterRadius: (!noCluster || noCluster != 1)? 80 : undefined,
-      iconCreateFunction: function(cluster) {
-        return L.divIcon({
-          html: '<div><span>' + cluster.getChildCount() + '</span></div>',
-          className: 'marker-cluster marker-cluster-darkgreen',
-          iconSize: new L.Point(40, 40)
-        });
-      }
-    });
-
+      //groupe d'appui
     var markers_blue = L.markerClusterGroup({
       maxClusterRadius: (!noCluster || noCluster != 1)? 80 : undefined,
       iconCreateFunction: function(cluster) {
@@ -249,7 +240,7 @@
         });
       }
     });
-
+      //melenchon
     var markers_red = L.markerClusterGroup({
       maxClusterRadius: (!noCluster || noCluster != 1)? 80 : undefined,
       iconCreateFunction: function(cluster) {
@@ -260,13 +251,13 @@
         });
       }
     });
-
+      //coordinates which fit the map to the france area
     var limites = [
       [41.783787, 9.587328],
       [51.352263, -4.627801]
     ];
     map.fitBounds(limites);
-
+    //getting url's parameters
     var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon';
     var embedTags = (getQueryParameterByName('tags') || '').split(',');
     var embedEventId = getQueryParameterByName('event_id') || '';
@@ -320,17 +311,19 @@
         });
       });
     }
-
+    //request of datas, and binding of them
+      //if we request a single event by it's id
+      //[embedEventId[0] == id in bdd embedEventId[1] == ressourse type in bdd (groups/evetns)]
     if (embedEventId != '') {
+      //request
       var url ='https://api.jlm2017.fr/' + embedEventId.split(',')[1] + '/' + embedEventId.split(',')[0];
-      console.log(url);
       var r = new XMLHttpRequest();
       r.open('GET', url, true);
       r.setRequestHeader('Accept', 'application/json');
       r.onreadystatechange = function() {
+        //process of the data
         if (r.readyState != 4 || r.status != 200) return;
         var event = JSON.parse(r.responseText);
-        console.log(event);
         if (event.coordinates) {
           if (event.agenda) {
             switch (event.agenda) {
@@ -370,7 +363,9 @@
       }
       r.send();
     }
+    //if we don't request a single event of the bdd, but a bundle of them
     else {
+      //request on groups
       var r = new XMLHttpRequest();
       var url ='https://api.jlm2017.fr/groups'
       if (embedTags != '')
@@ -379,7 +374,7 @@
       r.setRequestHeader('Accept', 'application/json');
       r.onreadystatechange = function() {
         if (r.readyState != 4 || r.status != 200) return;
-
+        //process of the data from the groups
         var data = JSON.parse(r.responseText);
         for (var i = 0; i < data._items.length; i++) {
           var event = data._items[i];
@@ -407,6 +402,7 @@
       r2.open('GET', url2, true);
       r2.setRequestHeader('Accept', 'application/json');
       r2.onreadystatechange = function() {
+        //process of event's data
         if (r2.readyState != 4 || r2.status != 200) return;
 
         var data = JSON.parse(r2.responseText);
@@ -445,7 +441,7 @@
       };
       r2.send();
     }
-
+    //show specific events'type on loading of the page depending of the parrametter in url
     if (embedEventType) {
       var tabEventType = embedEventType.split(',');
       if (tabEventType.indexOf('groups') > -1)
@@ -457,7 +453,7 @@
       if (tabEventType.indexOf('melenchon') > -1)
         map.addLayer(markers_red);
     }
-
+    //configuration of the Panel
     var hidePanel = getQueryParameterByName('hide_panel');
     if (!hidePanel || hidePanel != 1) {
       var overlayMaps = {
@@ -471,7 +467,7 @@
       }).addTo(map);
     }
 
-
+    //show address search
     var hideAddress = getQueryParameterByName('hide_address');
 
     if (!hideAddress || hideAddress != 1) {
