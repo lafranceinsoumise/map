@@ -321,96 +321,130 @@
       });
     }
 
-    var r = new XMLHttpRequest();
-    var url ='https://api.jlm2017.fr/groups'
-    if (embedTags != '' || embedEventId != '') {
-      url += '?where={';
-      if (embedTags != '')
-        url += '"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
-      if (embedEventId != '') {
-        if (embedTags != '')
-          url += ',';
-        url += '"id": ' + embedEventId;
-      }
-      url += ' }';
-    }
-    r.open('GET', url, true);
-    r.setRequestHeader('Accept', 'application/json');
-    r.onreadystatechange = function() {
-      if (r.readyState != 4 || r.status != 200) return;
-
-      var data = JSON.parse(r.responseText);
-      if (embedEventId != '' && data._items.length > 0)
-        map.setView([data._items[0].coordinates.coordinates[1], data._items[0].coordinates.coordinates[0]], 16);
-
-      for (var i = 0; i < data._items.length; i++) {
-        var event = data._items[i];
+    if (embedEventId != '') {
+      var url ='https://api.jlm2017.fr/' + embedEventId.split(',')[1] + '/' + embedEventId.split(',')[0];
+      console.log(url);
+      var r = new XMLHttpRequest();
+      r.open('GET', url, true);
+      r.setRequestHeader('Accept', 'application/json');
+      r.onreadystatechange = function() {
+        if (r.readyState != 4 || r.status != 200) return;
+        var event = JSON.parse(r.responseText);
+        console.log(event);
         if (event.coordinates) {
-          var mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
-          mblue.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkblue">' + event.name + '</a><br/>Groupe d\'appui');
-          markers_blue.addLayer(mblue);
+          if (event.agenda) {
+            switch (event.agenda) {
+              case 'melenchon':
+                var mred = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                  icon: red_icon
+                });
+                mred.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkred">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                markers_red.addLayer(mred);
+                break;
+              case 'evenements_locaux':
+                var date = new Date(event.startTime);
+                var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                  icon: new Date('2017-01-13T00:00:00.000') < date && date < new Date('2017-01-15T23:59:59.999') ? phi_icon : green_icon
+                });
+                mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                markers_green.addLayer(mgreen);
+                break;
+              case 'reunions_circonscription':
+                var mdarkgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                  icon: dark_green_icon
+                });
+                mdarkgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkdarkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                markers_darkgreen.addLayer(mdarkgreen);
+                break;
+              default:
+                break;
+            }
+          }
+          else {
+            var mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
+            mblue.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkblue">' + event.name + '</a><br/>Groupe d\'appui');
+            markers_blue.addLayer(mblue);
+          }
+          map.setView([event._items[0].coordinates.coordinates[1], event._items[0].coordinates.coordinates[0]], 16);
         }
       }
-    };
-    r.send();
+      r.send();
+    }
+    else {
+      var r = new XMLHttpRequest();
+      var url ='https://api.jlm2017.fr/groups'
+      if (embedTags != '')
+        url += '?where={"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} } }';
+      r.open('GET', url, true);
+      r.setRequestHeader('Accept', 'application/json');
+      r.onreadystatechange = function() {
+        if (r.readyState != 4 || r.status != 200) return;
 
-    // Get actual date and set it at the beginning of the day
-    var now = new Date();
-    now.setHours(0);
-    now.setMinutes(0);
-    now.setSeconds(0);
-
-    // Url to call to retrieve events
-    var url2 = 'https://api.jlm2017.fr/events?where={"startTime": {"$gt": "' + now.toUTCString() + '"}';
-
-    if (embedTags != '')
-      url2 += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
-    if (embedEventId != '')
-      url2 += ',"id": ' + embedEventId;
-    url2 += '}';
-    var r2 = new XMLHttpRequest();
-    r2.open('GET', url2, true);
-    r2.setRequestHeader('Accept', 'application/json');
-    r2.onreadystatechange = function() {
-      if (r2.readyState != 4 || r2.status != 200) return;
-
-      var data = JSON.parse(r2.responseText);
-      if (embedEventId != '' && data._items.length > 0)
-        map.setView([data._items[0].coordinates.coordinates[1], data._items[0].coordinates.coordinates[0]], 16);
-
-      for (var i = 0; i < data._items.length; i++) {
-        var event = data._items[i];
-        if (event.coordinates) {
-          switch (event.agenda) {
-            case 'melenchon':
-              var mred = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                icon: red_icon
-              });
-              mred.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkred">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
-              markers_red.addLayer(mred);
-              break;
-            case 'evenements_locaux':
-              var date = new Date(event.startTime);
-              var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                icon: new Date('2017-01-13T00:00:00.000') < date && date < new Date('2017-01-15T23:59:59.999') ? phi_icon : green_icon
-              });
-              mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
-              markers_green.addLayer(mgreen);
-              break;
-            case 'reunions_circonscription':
-              var mdarkgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                icon: dark_green_icon
-              });
-              mdarkgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkdarkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
-              markers_darkgreen.addLayer(mdarkgreen);
-              break;
-            default:
-              break;
+        var data = JSON.parse(r.responseText);
+        for (var i = 0; i < data._items.length; i++) {
+          var event = data._items[i];
+          if (event.coordinates) {
+            var mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
+            mblue.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkblue">' + event.name + '</a><br/>Groupe d\'appui');
+            markers_blue.addLayer(mblue);
           }
         }
-      }
-    };
-    r2.send();
+      };
+      r.send();
+
+      // Get actual date and set it at the beginning of the day
+      var now = new Date();
+      now.setHours(0);
+      now.setMinutes(0);
+      now.setSeconds(0);
+
+      // Url to call to retrieve events
+      var url2 = 'https://api.jlm2017.fr/events?where={"startTime": {"$gt": "' + now.toUTCString() + '"}'
+      if (embedTags != '')
+        url2 += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(embedTags) + '} }';
+      url2 += '}';
+      var r2 = new XMLHttpRequest();
+      r2.open('GET', url2, true);
+      r2.setRequestHeader('Accept', 'application/json');
+      r2.onreadystatechange = function() {
+        if (r2.readyState != 4 || r2.status != 200) return;
+
+        var data = JSON.parse(r2.responseText);
+
+        for (var i = 0; i < data._items.length; i++) {
+          var event = data._items[i];
+          if (event.coordinates) {
+            switch (event.agenda) {
+              case 'melenchon':
+                var mred = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                  icon: red_icon
+                });
+                mred.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkred">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                markers_red.addLayer(mred);
+                break;
+              case 'evenements_locaux':
+                var date = new Date(event.startTime);
+                var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                  icon: new Date('2017-01-13T00:00:00.000') < date && date < new Date('2017-01-15T23:59:59.999') ? phi_icon : green_icon
+                });
+                mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                markers_green.addLayer(mgreen);
+                break;
+              case 'reunions_circonscription':
+                var mdarkgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                  icon: dark_green_icon
+                });
+                mdarkgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkdarkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                markers_darkgreen.addLayer(mdarkgreen);
+                break;
+              default:
+                break;
+            }
+          }
+        }
+      };
+      r2.send();
+    }
 
     if (embedEventType) {
       var tabEventType = embedEventType.split(',');
