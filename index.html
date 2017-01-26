@@ -74,6 +74,11 @@
       color: rgb(3, 71, 0);
     }
 
+    a.maplinkpink,
+    .layer-control-pink {
+      color: rgb(3, 71, 0);
+    }
+
     .marker-cluster-blue div {
       background-color: rgba(0, 100, 150, 0.6);
       color: #ffffff;
@@ -111,6 +116,16 @@
     }
 
     .marker-cluster-darkgreen {
+      background-color: rgba(50, 230, 50, 0.6);
+    }
+
+    .marker-cluster-pink div {
+      background-color: rgba(3, 71, 0, 0.6);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .marker-cluster-pink {
       background-color: rgba(50, 230, 50, 0.6);
     }
 
@@ -194,6 +209,13 @@
     });
     var dark_green_icon = new dark_green_ico;
 
+    var pink_ico = L.Icon.Default.extend({
+      options: {
+        iconUrl: 'marker-icon-pink.png'
+      }
+    });
+    var pink_icon = new pink_ico;
+
     var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '<a href="http://osm.org/copyright">OpenStreetMap</a>'
     });
@@ -225,6 +247,17 @@
         return L.divIcon({
           html: '<div><span>' + cluster.getChildCount() + '</span></div>',
           className: 'marker-cluster marker-cluster-darkgreen',
+          iconSize: new L.Point(40, 40)
+        });
+      }
+    });
+      //reunions publiques
+    var markers_pink = L.markerClusterGroup({
+      maxClusterRadius: (!noCluster || noCluster != 1)? 80 : undefined,
+      iconCreateFunction: function(cluster) {
+        return L.divIcon({
+          html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+          className: 'marker-cluster marker-cluster-pink',
           iconSize: new L.Point(40, 40)
         });
       }
@@ -349,6 +382,13 @@
                 mdarkgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkdarkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
                 markers_darkgreen.addLayer(mdarkgreen);
                 break;
+              case 'reunions_publiques':
+                var mpink = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                  icon: pink_icon
+                });
+                mpink.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkpink">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                markers_pink.addLayer(mpink);
+                break;
               default:
                 break;
             }
@@ -433,6 +473,13 @@
                 mdarkgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkdarkgreen" target="_blank">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
                 markers_darkgreen.addLayer(mdarkgreen);
                 break;
+              case 'reunions_publiques':
+                var mpink = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                  icon: pink_icon
+                });
+                mpink.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkpink">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                markers_pink.addLayer(mpink);
+                break;
               default:
                 break;
             }
@@ -450,6 +497,8 @@
         map.addLayer(markers_green);
       if (tabEventType.indexOf('reunions_circonscription') > -1)
         map.addLayer(markers_darkgreen);
+      if (tabEventType.indexOf('reunions_publiques') > -1)
+        map.addLayer(markers_pink)
       if (tabEventType.indexOf('melenchon') > -1)
         map.addLayer(markers_red);
     }
