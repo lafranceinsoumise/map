@@ -313,7 +313,7 @@
     }
     //request of datas, and binding of them
       //if we request a single event by it's id
-      //[embedEventId[0] == id in bdd embedEventId[1] == ressourse type in bdd (groups/evetns)]
+      //[embedEventId[0] == id in bdd embedEventId[1] == ressourse type in bdd (groups/events)]
     if (embedEventId != '') {
       //request
       var url ='https://api.jlm2017.fr/' + embedEventId.split(',')[1] + '/' + embedEventId.split(',')[0];
@@ -358,7 +358,7 @@
             mblue.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkblue">' + event.name + '</a><br/>Groupe d\'appui');
             markers_blue.addLayer(mblue);
           }
-          map.setView([event._items[0].coordinates.coordinates[1], event._items[0].coordinates.coordinates[0]], 16);
+          map.setView([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], 16);
         }
       }
       r.send();
