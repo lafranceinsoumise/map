@@ -380,7 +380,7 @@
           var event = data._items[i];
           if (event.coordinates) {
             var mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
-            mblue.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkblue">' + event.name + '</a><br/>Groupe d\'appui');
+            mblue.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkblue" target="_blank">' + event.name + '</a><br/>Groupe d\'appui');
             markers_blue.addLayer(mblue);
           }
         }
@@ -415,7 +415,7 @@
                 var mred = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
                   icon: red_icon
                 });
-                mred.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkred">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                mred.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkred" target="_blank">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
                 markers_red.addLayer(mred);
                 break;
               case 'evenements_locaux':
@@ -423,14 +423,14 @@
                 var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
                   icon: new Date('2017-01-13T00:00:00.000') < date && date < new Date('2017-01-15T23:59:59.999') ? phi_icon : green_icon
                 });
-                mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen" target="_blank">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
                 markers_green.addLayer(mgreen);
                 break;
               case 'reunions_circonscription':
                 var mdarkgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
                   icon: dark_green_icon
                 });
-                mdarkgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkdarkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                mdarkgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkdarkgreen" target="_blank">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
                 markers_darkgreen.addLayer(mdarkgreen);
                 break;
               default:
