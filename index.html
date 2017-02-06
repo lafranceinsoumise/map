@@ -291,7 +291,7 @@
     ];
     map.fitBounds(limites);
     //getting url's parameters
-    var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon';
+    var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques';
     var embedTags = (getQueryParameterByName('tags') || '').split(',');
     var embedEventId = getQueryParameterByName('event_id') || '';
 
@@ -506,9 +506,10 @@
     var hidePanel = getQueryParameterByName('hide_panel');
     if (!hidePanel || hidePanel != 1) {
       var overlayMaps = {
-        '<span class="layer-control-green">Événements</span>': markers_green,
-        '<span class="layer-control-blue">Groupes</span>': markers_blue,
-        '<span class="layer-control-red">Agenda de JLM</span>': markers_red
+        '<span class="layer-control-green">Événements locaux</span>': markers_green,
+        '<span class="layer-control-blue">Groupes d\'appui</span>': markers_blue,
+        '<span class="layer-control-red">Agenda de Jean-Luc Mélenchon</span>': markers_red,
+        '<span class="layer-control-pink">Réunions publiques</span>': markers_pink
       };
 
       L.control.layers(null, overlayMaps, {
