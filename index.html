@@ -285,10 +285,22 @@
       }
     });
       //coordinates which fit the map to the france area
-    var limites = [
-      [41.783787, 9.587328],
-      [51.352263, -4.627801]
-    ];
+    var borderfit = getQueryParameterByName('borderfit');
+    if (!borderfit) {
+
+      var limites = [
+        [41.783787, 9.587328],
+        [51.352263, -4.627801]
+
+      ];
+    }
+    else {
+      borderfit = borderfit.split(',');
+      var limites = [
+          [borderfit[0], borderfit[1]],
+          [borderfit[2], borderfit[3]]
+      ];
+    }
     map.fitBounds(limites);
     //getting url's parameters
     var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques';
@@ -296,7 +308,7 @@
     var embedEventId = getQueryParameterByName('event_id') || '';
 
     // If zipcode is defined, zoom on it
-    if (getQueryParameterByName('zipcode')) {
+    if (getQueryParameterByName('zipcode') && !borderfit) {
       var zipcode = getQueryParameterByName('zipcode');
       httpGetJson('//api-adresse.data.gouv.fr/search/?q='+ zipcode + '&postcode=' + zipcode, function(data) {
         if (data.features.length == 0) return;
