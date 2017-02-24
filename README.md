@@ -29,4 +29,5 @@ Example :
 * `hide_panel`: 0 or 1, hide the panel. Default value: 0.
 * `no_cluster`: 0 or 1, do not group the events on the map. Default value: 0.
 * `tags`: comma-separated list of tags. Only display events with those tags. Display all events in undefined.
-*  hide_address : 0 or 1, hide the search bar. Default value: 0.
+*  `hide_address` : 0 or 1, hide the search bar. Default value: 0.
+*  `borderfit` : fix the limit of the map, provide a parameter like: maxlat,maxlong,minlat,minlong. Caution, it disable zipcode option
