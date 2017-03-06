@@ -202,6 +202,13 @@
     });
     var phi_icon = new phi_ico;
 
+    var phi_blue_ico = L.Icon.Default.extend({
+      options: {
+        iconUrl: 'marker-icon-phi-blue.png'
+      }
+    });
+    var phi_blue_icon = new phi_blue_ico;
+
     var dark_green_ico = L.Icon.Default.extend({
       options: {
         iconUrl: 'marker-icon-darkgreen.png'
@@ -406,7 +413,15 @@
             }
           }
           else {
-            var mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
+            var mblue;
+            if (event.tags.indexOf('GroupeCertifié') != -1) {
+              mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                icon: phi_blue_icon
+              });
+            }
+            else {
+              mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
+            }
             mblue.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkblue">' + event.name + '</a><br/>Groupe d\'appui');
             markers_blue.addLayer(mblue);
           }
@@ -431,7 +446,15 @@
         for (var i = 0; i < data._items.length; i++) {
           var event = data._items[i];
           if (event.coordinates) {
-            var mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
+            var mblue;
+            if (event.tags.indexOf('GroupeCertifié') != -1) {
+              mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                icon: phi_blue_icon
+              });
+            }
+            else {
+              mblue = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]]);
+            }
             mblue.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkblue" target="_blank">' + event.name + '</a><br/>Groupe d\'appui');
             markers_blue.addLayer(mblue);
           }
