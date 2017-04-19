@@ -308,6 +308,11 @@
         });
       }
     });
+
+    // date limite des evenements locaux
+    var dateLimite = new Date("2017-04-21T23:59:59+02:00");
+    var dateLimite2 = new Date("2017-04-24T00:00:00+02:00");
+
       //coordinates which fit the map to the france area
     var borderfit = getQueryParameterByName('borderfit');
     if (!borderfit) {
@@ -405,11 +410,13 @@
                 break;
               case 'evenements_locaux':
                 var date = new Date(event.startTime);
-                var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                  icon: new Date('2017-01-13T00:00:00.000') < date && date < new Date('2017-01-15T23:59:59.999') ? phi_icon : green_icon
-                });
-                mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
-                markers_green.addLayer(mgreen);
+                if (date < dateLimite || date > dateLimite2) {
+                  var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                    icon: new Date('2017-01-13T00:00:00.000') < date && date < new Date('2017-01-15T23:59:59.999') ? phi_icon : green_icon
+                  });
+                  mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                  markers_green.addLayer(mgreen);
+                }
                 break;
               case 'reunions_circonscription':
                 var mdarkgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
@@ -503,11 +510,13 @@
                 break;
               case 'evenements_locaux':
                 var date = new Date(event.startTime);
-                var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                  icon: new Date('2017-01-13T00:00:00.000') < date && date < new Date('2017-01-15T23:59:59.999') ? phi_icon : green_icon
-                });
-                mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen" target="_blank">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
-                markers_green.addLayer(mgreen);
+                if (date < dateLimite || date > dateLimite2) {
+                  var mgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
+                    icon: new Date('2017-01-13T00:00:00.000') < date && date < new Date('2017-01-15T23:59:59.999') ? phi_icon : green_icon
+                  });
+                  mgreen.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkgreen" target="_blank">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
+                  markers_green.addLayer(mgreen);
+                }
                 break;
               case 'reunions_circonscription':
                 var mdarkgreen = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
