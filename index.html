@@ -616,10 +616,11 @@
           : 'Survolez une circonscription.');
       };
 
-      // get color depending on population density value
+      // get color depending on circonscription number
       function getColor(property) {
 
         var color;
+        // circonscription francais de l’etranger
         if (property.departement != 'FE')
         {
           color = 'blue';
@@ -719,14 +720,6 @@
         });
       }
 
-      // var style = {
-      //   weight: 2,
-      //   opacity: 1,
-      //   color: 'blue',
-      //   dashArray: '3',
-      //   fillOpacity: 0.5
-      // }
-
       var circonscriptions = httpGetJson('circo_json.json', function(data) {
         data.forEach(function(element) {
           if (element.geojson.features[0])
@@ -738,7 +731,7 @@
         });
       });
 
-      var circonscriptions = httpGetJson('circo_fe_json.json', function(data) {
+      var circos_fe = httpGetJson('circo_fe_json.json', function(data) {
         data.forEach(function(element) {
           if (element.geojson.features[0])
           {
