@@ -620,11 +620,12 @@
       function getColor(property) {
 
         var color;
-        // circonscription francais de l’etranger
+        // circonscription en France
         if (property.departement != 'FE')
         {
           color = 'blue';
         }
+        // circonscription Francais de l’etranger
         else
         {
           switch (property.circonscription)
