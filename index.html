@@ -616,6 +616,75 @@
           : 'Survolez une circonscription.');
       };
 
+      // get color depending on circonscription number
+      function getColor(property) {
+
+        var color;
+        // circonscription en France
+        if (property.departement != 'FE')
+        {
+          color = 'blue';
+        }
+        // circonscription Francais de l’etranger
+        else
+        {
+          switch (property.circonscription)
+          {
+            case '1':
+                color = '#bb8c59';
+                break;
+            case '2':
+                color = 'green';
+                break;
+            case '3':
+                color = 'orange';
+                break;
+            case '4':
+                color = '#dc496a';
+                break;
+            case '5':
+                color = '#d45f09';
+                break;
+            case '6':
+                color = '#c485cd';
+                break;
+            case '7':
+                color = '#7f31fe';
+                break;
+            case '8':
+                color = '#4fee51';
+                break;
+            case '9':
+                color = '#ed74c9';
+                break;
+            case '10':
+                color = '#2d93eb';
+                break;
+            case '11':
+                color = 'red';
+                break;
+            default:
+                color = 'red';
+          }
+        }
+
+        return color;
+      }
+
+      function style(feature) {
+
+        var color = getColor(feature.properties);
+
+        return {
+          weight: 2,
+          opacity: 1,
+          color: color,
+          dashArray: '3',
+          fillOpacity: 0.5,
+          fillColor: color
+        };
+      }
+
       function onEachFeature(feature, layer) {
         function highlightFeature(e) {
           var layer = e.target;
@@ -652,15 +721,18 @@
         });
       }
 
-      var style = {
-        weight: 2,
-        opacity: 1,
-        color: 'blue',
-        dashArray: '3',
-        fillOpacity: 0.5
-      }
-
       var circonscriptions = httpGetJson('circo_json.json', function(data) {
+        data.forEach(function(element) {
+          if (element.geojson.features[0])
+          {
+            element.geojson.features[0].properties.departement = element.departement;
+            element.geojson.features[0].properties.circonscription = element.numero;
+          }
+          geojson = L.geoJson(element.geojson, {style: style, onEachFeature: onEachFeature}).addTo(map);
+        });
+      });
+
+      var circos_fe = httpGetJson('circo_fe_json.json', function(data) {
         data.forEach(function(element) {
           if (element.geojson.features[0])
           {
