@@ -79,10 +79,6 @@
       color: rgb(224, 38, 104);
     }
 
-    a.maplinktruck,
-    .layer-control-truck {
-      color: rgb(155, 10, 116);
-    }
 
     .marker-cluster-blue div {
       background-color: rgba(0, 100, 150, 0.6);
@@ -221,14 +217,6 @@
     });
     var pink_icon = new pink_ico;
 
-    var truck_ico = L.Icon.Default.extend({
-      options: {
-        iconUrl: 'marker-icon-truck.png',
-        iconSize: [40, 40]
-      }
-    });
-    var truck_icon = new truck_ico;
-
     var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '<a href="http://osm.org/copyright">OpenStreetMap</a>'
     });
@@ -271,17 +259,6 @@
         return L.divIcon({
           html: '<div><span>' + cluster.getChildCount() + '</span></div>',
           className: 'marker-cluster marker-cluster-pink',
-          iconSize: new L.Point(40, 40)
-        });
-      }
-    });
-      // camion melenchon
-    var markers_truck = L.markerClusterGroup({
-      maxClusterRadius: undefined,
-      iconCreateFunction: function(cluster) {
-        return L.divIcon({
-          html: '<div><span>' + cluster.getChildCount() + '</span></div>',
-          className: 'marker-cluster marker-cluster-truck',
           iconSize: new L.Point(40, 40)
         });
       }
@@ -332,7 +309,7 @@
     }
     map.fitBounds(limites);
     //getting url's parameters
-    var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques,camion_melenchon';
+    var embedEventType = getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques';
     var embedTags = (getQueryParameterByName('tags') || '').split(',');
     var embedEventId = getQueryParameterByName('event_id') || '';
 
@@ -432,13 +409,6 @@
                 mpink.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkpink">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
                 markers_pink.addLayer(mpink);
                 break;
-              case 'camion_melenchon':
-                var mtruck = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                  icon: truck_icon
-                });
-                mtruck.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkpink">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
-                markers_truck.addLayer(mtruck);
-                break;
               default:
                 break;
             }
@@ -532,13 +502,6 @@
                 mpink.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkpink">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
                 markers_pink.addLayer(mpink);
                 break;
-              case 'camion_melenchon':
-                var mtruck = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
-                  icon: truck_icon
-                });
-                mtruck.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplinkpink">' + event.name + '</a><br/>le ' + new Date(event.startTime).toLocaleString());
-                markers_truck.addLayer(mtruck);
-                break;
               default:
                 break;
             }
@@ -558,8 +521,6 @@
         map.addLayer(markers_darkgreen);
       if (tabEventType.indexOf('reunions_publiques') > -1)
         map.addLayer(markers_pink)
-      if (tabEventType.indexOf('camion_melenchon') > -1)
-        map.addLayer(markers_truck)
       if (tabEventType.indexOf('melenchon') > -1)
         map.addLayer(markers_red);
     }
@@ -570,8 +531,7 @@
         '<span class="layer-control-green">Événements locaux</span>': markers_green,
         '<span class="layer-control-blue">Groupes d\'appui</span>': markers_blue,
         '<span class="layer-control-red">Agenda de Jean-Luc Mélenchon</span>': markers_red,
-        '<span class="layer-control-pink">Réunions publiques</span>': markers_pink,
-        '<span class="layer-control-truck">Au tour du peuple</span>': markers_truck
+        '<span class="layer-control-pink">Réunions publiques</span>': markers_pink
       };
 
       L.control.layers(null, overlayMaps, {
