@@ -295,7 +295,7 @@
         var coordinates = data.features[0].geometry.coordinates;
         map.setView([coordinates[1], coordinates[0]], 12);
 
-        var resource = options.embedEventType.indexOf('groups') > -1 ? 'groups' : 'events';
+        /*var resource = options.embedEventType.indexOf('groups') > -1 ? 'groups' : 'events';
         var urlZoomApi = 'https://api.lafranceinsoumise.fr/legacy/' + resource + '/?where= + {"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}';
         if (options.embedTags != '')
             urlZoomApi += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }';
@@ -323,7 +323,7 @@
                 L.latLng(max_lat+padding_fix, max_long+padding_fix)
               )
             );
-        });
+        });*/
       });
     }
 
