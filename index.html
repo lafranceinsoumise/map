@@ -295,6 +295,7 @@
         var coordinates = data.features[0].geometry.coordinates;
         map.setView([coordinates[1], coordinates[0]], 12);
 
+        // TODO
         /*var resource = options.embedEventType.indexOf('groups') > -1 ? 'groups' : 'events';
         var urlZoomApi = 'https://api.lafranceinsoumise.fr/legacy/' + resource + '/?where= + {"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}';
         if (options.embedTags != '')
@@ -346,8 +347,9 @@
     function loadDefault() {
       //request on groups
       var url ='https://api.lafranceinsoumise.fr/legacy/groups/summary/'
-      if (options.embedTags != '')
-        url += '?where={"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} } }';
+      // TODO
+      /*if (options.embedTags != '')
+        url += '?where={"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} } }';*/
       httpGetJson(url, function(data) {
         for (var i = 0; i < data.length; i++) {
           addGroup(data[i]);
@@ -356,8 +358,8 @@
 
       url = 'https://api.lafranceinsoumise.fr/legacy/events/summary/'
       // TODO
-      if (options.embedTags != '')
-        url += '{"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }}';
+      /*if (options.embedTags != '')
+        url += '{"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }}';*/
       httpGetJson(url, function(data) {
         for (var i = 0; i < data.length; i++) {
           addCalendarEvent(data[i]);
