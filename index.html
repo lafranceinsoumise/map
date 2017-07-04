@@ -28,9 +28,11 @@
     ga('send', 'pageview');
   </script>
 
-  <link rel="stylesheet" href="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.5.0/MarkerCluster.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.5.0/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css"
+  integrity="sha512-wcw6ts8Anuw10Mzh9Ytw4pylW8+NAD4ch3lqm9lzAsTxg0GFeJgoAtxuCLREZSC5lUXdVyo/7yfsqFjQ4S+aKw=="
+  crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.0.6/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.0.6/dist/MarkerCluster.Default.css">
   <link rel="stylesheet" href="l.geosearch.css">
 
   <style>
@@ -142,9 +144,14 @@
   <a href="https://github.com/jlm2017" target="_blank" title="Fork me on GitHub">
     <img src="https://jlm2017.github.io/theme/images/github_small.png" style="position: absolute; bottom: 10px; left: 10px; z-index: 1000;"/>
   </a>
+
   <div id="map"></div>
-  <script src="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.5.0/leaflet.markercluster.js"></script>
+
+  <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet.js"
+  integrity="sha512-mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1MrdXvMcA=="
+  crossorigin=""></script>
+  <script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.0.6/dist/leaflet.markercluster.js"></script>
+
   <script>
     /**
     * L.Control.GeoSearch - search for an address and zoom to it's location
@@ -205,18 +212,17 @@
     var map = L.map('map', {
       center: latlng,
       zoom: 6,
-      layers: [tiles]
+      layers: [tiles],
+      zoomSnap: 0
     });
 
     // Create icons and cluster
     var icons = {};
     var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink'];
     for (var i = 0; i < iconColors.length; i++) {
-      icons[iconColors[i]] = new (L.Icon.Default.extend({
-        options: {
-          iconUrl: 'marker-icon-' + iconColors[i] + '.png'
-        }
-      }));
+      icons[iconColors[i]] = new L.Icon({
+        iconUrl: window.location.origin + window.location.pathname + '/marker-icon-' + iconColors[i] + '.png'
+      });
     }
 
     var markerClusters = {};
@@ -296,36 +302,24 @@
         var coordinates = data.features[0].geometry.coordinates;
         map.setView([coordinates[1], coordinates[0]], 12);
 
+        var resource = options.embedEventType.indexOf('groups') > -1 ? 'groups' : 'events';
+        var urlZoomApi = 'https://api.lafranceinsoumise.fr/legacy/' + resource + '/?order_by_distance_to=[' + coordinates[0] + ',' + coordinates[1] + ']';
         // TODO
-        /*var resource = options.embedEventType.indexOf('groups') > -1 ? 'groups' : 'events';
-        var urlZoomApi = 'https://api.lafranceinsoumise.fr/legacy/' + resource + '/?where= + {"coordinates":{"$near":{"$geometry":{"type":"Point","coordinates":['+coordinates[0]+','+coordinates[1]+']}}}';
-        if (options.embedTags != '')
-            urlZoomApi += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }';
-          urlZoomApi += '}&max_results=4';
+        /* if (options.embedTags != '')
+          urlZoomApi += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }';
+          urlZoomApi += '}&max_results=4';*/
 
         httpGetJson(urlZoomApi, function(data) {
             if (data._items.length == 0) return;
             // Coordinates of rectangle around 4 groups.
-            var min_lat = data._items[0].coordinates.coordinates[1];
-            var min_long =  data._items[0].coordinates.coordinates[0];
-            var max_lat = data._items[0].coordinates.coordinates[1];
-            var max_long = data._items[0].coordinates.coordinates[0];
-            for (var i = 1; i < data._items.length ; i++) {
-                min_lat = Math.min(min_lat, data._items[i].coordinates.coordinates[1]);
-                min_long = Math.min(min_long, data._items[i].coordinates.coordinates[0]);
-                max_lat = Math.max(max_lat, data._items[i].coordinates.coordinates[1]);
-                max_long = Math.max(max_long, data._items[i].coordinates.coordinates[0]);
+            var bounds = map.getBounds();
+            for (var i = 0; i < Math.min(data._items.length, 5); i++) {
+              bounds.extend(L.latLng(data._items[i].coordinates.coordinates[1], data._items[i].coordinates.coordinates[0]));
             }
 
-            var padding_fix = 0.0002;
-
-            map.fitBounds(
-              L.latLngBounds(
-                L.latLng(min_lat-padding_fix, min_long-padding_fix),
-                L.latLng(max_lat+padding_fix, max_long+padding_fix)
-              )
-            );
-        });*/
+            console.log('Gonna fit bounds.')
+            map.fitBounds(bounds, {padding: [0, 0]});
+        });
       });
     }
 
