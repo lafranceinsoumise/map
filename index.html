@@ -196,7 +196,7 @@
     }
 
     /**
-     * Create map
+     * Step 1.. Create map
      */
     var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '<a href="http://osm.org/copyright">OpenStreetMap</a>'
@@ -265,16 +265,6 @@
         [options.borderfit[2], options.borderfit[3]]
     ]);
 
-    /**
-     * Zoom and event requests
-     */
-    if (options.zipcode) zoomZipcode(options.zipcode);
-    if (options.embedEventId) {
-      zoomAndLoadSingleEvent(options.embedEventId)
-    } else {
-      loadDefault();
-    }
-
     // Filter on events type
     var eventTypes = options.embedEventType.split(',');
     if (eventTypes.indexOf('groups') > -1)
@@ -288,6 +278,17 @@
     if (eventTypes.indexOf('melenchon') > -1)
       map.addLayer(markerClusters['red']);
 
+    /**
+     * Step 2. Zoom and event requests
+     */
+    if (options.zipcode) zoomZipcode(options.zipcode);
+    if (options.embedEventId) {
+      zoomAndLoadSingleEvent(options.embedEventId)
+    } else {
+      loadDefault();
+    }
+
+    // Function definitions
     function zoomZipcode(zipcode) {
       httpGetJson('//api-adresse.data.gouv.fr/search/?q='+ zipcode + '&postcode=' + zipcode, function(data) {
         if (data.features.length == 0) return;
@@ -395,8 +396,7 @@
     }
 
     /**
-     * Polygon des circonscriptions
-     * on reutilise la fonction juste au dessus
+     * Step 3. Display circonscriptions' polygon if activated
      */
     if (options.embedCirconscription && options.embedCirconscription == 1) {
       // control that shows circonscriptions info on hover
