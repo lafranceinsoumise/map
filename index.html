@@ -81,6 +81,10 @@
       color: rgb(224, 38, 104);
     }
 
+    a.maplinktruck,
+    .layer-control-truck {
+      color: rgb(155, 10, 116);
+    }
 
     .marker-cluster-blue div {
       background-color: rgba(0, 100, 150, 0.6);
@@ -130,6 +134,16 @@
 
     .marker-cluster-pink {
       background-color: rgba(239, 40, 111, 0.6);
+    }
+
+    .marker-cluster-truck div {
+      background-color: rgba(223, 86, 224, 0.6);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .marker-cluster-truck {
+      background-color: rgba(179, 144, 239, 0.6);
     }
 
     .info {
@@ -200,7 +214,7 @@
       embedCirconscription: getQueryParameterByName('circonscriptions'),
       hidePanel: getQueryParameterByName('hide_panel'),
       hideAddress: getQueryParameterByName('hide_address')
-    }
+    };
 
     /**
      * Step 1.. Create map
@@ -218,16 +232,18 @@
 
     // Create icons and cluster
     var icons = {};
-    var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink'];
+    var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink', 'truck'];
     for (var i = 0; i < iconColors.length; i++) {
-      icons[iconColors[i]] = new L.Icon({
-        iconUrl: window.location.origin + window.location.pathname + '/marker-icon-' + iconColors[i] + '.png'
+      icons[iconColors[i]] = L.icon({
+        iconUrl: 'marker-icon-' + iconColors[i] + '.png',
+        iconAnchor: iconColors[i] === 'truck' ? [14, 16] : [12, 41],
+        popupAnchor: iconColors[i] === 'truck' ? [0, -16] : [0, -41]
       });
     }
 
     var markerClusters = {};
     // evenements_locaix, reunions_circonscription, reunions_publiques, groups, agenda_melenchon
-    var markerClusterColors = ['green', 'darkgreen', 'pink', 'blue', 'red'];
+    var markerClusterColors = ['green', 'darkgreen', 'pink', 'blue', 'red', 'truck'];
     var clusterColor;
     markerClusterColors.forEach(function(color) {
       markerClusters[color] = L.markerClusterGroup({
@@ -248,7 +264,8 @@
         '<span class="layer-control-green">Événements locaux</span>': markerClusters['green'],
         '<span class="layer-control-blue">Groupes d\'appui</span>': markerClusters['blue'],
         '<span class="layer-control-red">Agenda de Jean-Luc Mélenchon</span>': markerClusters['red'],
-        '<span class="layer-control-pink">Réunions publiques</span>': markerClusters['pink']
+        '<span class="layer-control-pink">Réunions publiques</span>': markerClusters['pink'],
+        '<span class="layer-control-truck">Caravanes</span>': markerClusters['truck']
       };
 
       L.control.layers(null, overlayMaps, {
@@ -280,9 +297,11 @@
     if (eventTypes.indexOf('reunions_circonscription') > -1)
       map.addLayer(markerClusters['darkgreen']);
     if (eventTypes.indexOf('reunions_publiques') > -1)
-      map.addLayer(markerClusters['pink'])
+      map.addLayer(markerClusters['pink']);
     if (eventTypes.indexOf('melenchon') > -1)
       map.addLayer(markerClusters['red']);
+    if (eventTypes.indexOf('caravanes') > -1)
+      map.addLayer(markerClusters['truck']);
 
     /**
      * Step 2. Zoom and event requests
@@ -341,7 +360,7 @@
 
     function loadDefault() {
       //request on groups
-      var url ='https://api.lafranceinsoumise.fr/legacy/groups/summary/'
+      var url ='https://api.lafranceinsoumise.fr/legacy/groups/summary/';
       // TODO
       /*if (options.embedTags != '')
         url += '?where={"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} } }';*/
@@ -351,7 +370,7 @@
         }
       });
 
-      url = 'https://api.lafranceinsoumise.fr/legacy/events/summary/'
+      url = 'https://api.lafranceinsoumise.fr/legacy/events/summary/';
       // TODO
       /*if (options.embedTags != '')
         url += '{"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }}';*/
@@ -375,8 +394,9 @@
         melenchon: 'red',
         evenements_locaux: 'green',
         reunions_circonscription: 'darkgreen',
-        reunions_publiques: 'pink'
-      }
+        reunions_publiques: 'pink',
+        caravanes: 'truck'
+      };
 
       if (!event.coordinates) return;
       if (!icons[colors[event.calendar]]) return;
