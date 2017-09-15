@@ -315,14 +315,13 @@
 
     // Function definitions
     function zoomZipcode(zipcode) {
-      httpGetJson('//api-adresse.data.gouv.fr/search/?q='+ zipcode + '&postcode=' + zipcode, function(data) {
-        if (data.features.length == 0) return;
+      httpGetJson('//nominatim.openstreetmap.org/search/?format=json&q=' + zipcode + ',France', function(data) {
+        if (data.length == 0) return;
 
-        var coordinates = data.features[0].geometry.coordinates;
-        map.setView([coordinates[1], coordinates[0]], 12);
+        map.setView([data[0].lat, data[0].lon], 12);
 
         var resource = options.embedEventType.indexOf('groups') > -1 ? 'groups' : 'events';
-        var urlZoomApi = 'https://api.lafranceinsoumise.fr/legacy/' + resource + '/?order_by_distance_to=[' + coordinates[0] + ',' + coordinates[1] + ']';
+        var urlZoomApi = 'https://api.lafranceinsoumise.fr/legacy/' + resource + '/?order_by_distance_to=[' + data[0].lon + ',' + data[0].lat + ']';
         // TODO
         /* if (options.embedTags != '')
           urlZoomApi += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }';
