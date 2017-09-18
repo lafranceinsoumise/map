@@ -86,6 +86,11 @@
       color: rgb(155, 10, 116);
     }
 
+    a.maplinktogether,
+    .layer-control-together {
+      color: #c9462c;
+    }
+
     .marker-cluster-blue div {
       background-color: rgba(0, 100, 150, 0.6);
       color: #ffffff;
@@ -144,6 +149,16 @@
 
     .marker-cluster-truck {
       background-color: rgba(179, 144, 239, 0.6);
+    }
+
+    .marker-cluster-together div {
+      background-color: rgba(200, 70, 40, 0.6);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .marker-cluster-together {
+      background-color: rgba(204, 53, 53, 0.6);
     }
 
     .info {
@@ -207,7 +222,7 @@
     var options = {
       noCluster: getQueryParameterByName('no_cluster'),
       borderfit: (getQueryParameterByName('borderfit') || '41.783787,9.587328,51.352263,-4.627801').split(','),
-      embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques,caravanes',
+      embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques,departs',
       embedTags: (getQueryParameterByName('tags') || '').split(','),
       embedEventId: getQueryParameterByName('event_id') || '',
       zipcode: getQueryParameterByName('zipcode'),
@@ -232,18 +247,18 @@
 
     // Create icons and cluster
     var icons = {};
-    var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink', 'truck'];
+    var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink', 'together'];
     for (var i = 0; i < iconColors.length; i++) {
       icons[iconColors[i]] = L.icon({
         iconUrl: 'marker-icon-' + iconColors[i] + '.png',
-        iconAnchor: iconColors[i] === 'truck' ? [14, 16] : [12, 41],
-        popupAnchor: iconColors[i] === 'truck' ? [0, -16] : [0, -41]
+        iconAnchor: iconColors[i] === 'together' ? [14, 16] : [12, 41],
+        popupAnchor: iconColors[i] === 'together' ? [0, -16] : [0, -41]
       });
     }
 
     var markerClusters = {};
     // evenements_locaix, reunions_circonscription, reunions_publiques, groups, agenda_melenchon
-    var markerClusterColors = ['green', 'darkgreen', 'pink', 'blue', 'red', 'truck'];
+    var markerClusterColors = ['green', 'darkgreen', 'pink', 'blue', 'red', 'together'];
     var clusterColor;
     markerClusterColors.forEach(function(color) {
       markerClusters[color] = L.markerClusterGroup({
@@ -265,7 +280,7 @@
         '<span class="layer-control-blue">Groupes d\'appui</span>': markerClusters['blue'],
         '<span class="layer-control-red">Agenda de Jean-Luc Mélenchon</span>': markerClusters['red'],
         '<span class="layer-control-pink">Réunions publiques</span>': markerClusters['pink'],
-        '<span class="layer-control-truck">Caravanes</span>': markerClusters['truck']
+        '<span class="layer-control-together">Départs collectifs 23 septembre</span>': markerClusters['together']
       };
 
       L.control.layers(null, overlayMaps, {
@@ -300,8 +315,8 @@
       map.addLayer(markerClusters['pink']);
     if (eventTypes.indexOf('melenchon') > -1)
       map.addLayer(markerClusters['red']);
-    if (eventTypes.indexOf('caravanes') > -1)
-      map.addLayer(markerClusters['truck']);
+    if (eventTypes.indexOf('departs') > -1)
+      map.addLayer(markerClusters['together']);
 
     /**
      * Step 2. Zoom and event requests
@@ -394,7 +409,7 @@
         evenements_locaux: 'green',
         reunions_circonscription: 'darkgreen',
         reunions_publiques: 'pink',
-        caravanes: 'truck'
+        caravanes: 'together'
       };
 
       if (!event.coordinates) return;
