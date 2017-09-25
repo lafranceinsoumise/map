@@ -91,6 +91,11 @@
       color: #c9462c;
     }
 
+    a.maplinktogether,
+    .layer-control-casserole {
+      color: #c9462c;
+    }
+
     .marker-cluster-blue div {
       background-color: rgba(0, 100, 150, 0.6);
       color: #ffffff;
@@ -161,6 +166,22 @@
       background-color: rgba(204, 53, 53, 0.6);
     }
 
+    .marker-cluster-together div {
+      background-color: rgba(200, 70, 40, 0.6);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .marker-cluster-casserole {
+      background-color: rgba(204, 53, 53, 0.6);
+    }
+
+    .marker-cluster-casserole div {
+      background-color: rgba(200, 70, 40, 0.6);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
     .info {
       padding: 0px 8px;
       background: rgba(9, 9, 9, 0.7);
@@ -222,7 +243,7 @@
     var options = {
       noCluster: getQueryParameterByName('no_cluster'),
       borderfit: (getQueryParameterByName('borderfit') || '41.783787,9.587328,51.352263,-4.627801').split(','),
-      embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques,departs',
+      embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques,casserolades',
       embedTags: (getQueryParameterByName('tags') || '').split(','),
       embedEventId: getQueryParameterByName('event_id') || '',
       zipcode: getQueryParameterByName('zipcode'),
@@ -247,18 +268,18 @@
 
     // Create icons and cluster
     var icons = {};
-    var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink', 'together'];
+    var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink', 'casserole'];
     for (var i = 0; i < iconColors.length; i++) {
       icons[iconColors[i]] = L.icon({
         iconUrl: 'marker-icon-' + iconColors[i] + '.png',
-        iconAnchor: iconColors[i] === 'together' ? [14, 16] : [12, 41],
-        popupAnchor: iconColors[i] === 'together' ? [0, -16] : [0, -41]
+        iconAnchor: iconColors[i] === 'casserole' ? [14, 16] : [12, 41],
+        popupAnchor: iconColors[i] === 'casserole' ? [0, -16] : [0, -41]
       });
     }
 
     var markerClusters = {};
     // evenements_locaix, reunions_circonscription, reunions_publiques, groups, agenda_melenchon
-    var markerClusterColors = ['green', 'darkgreen', 'pink', 'blue', 'red', 'together'];
+    var markerClusterColors = ['green', 'darkgreen', 'pink', 'blue', 'red', 'casserole'];
     var clusterColor;
     markerClusterColors.forEach(function(color) {
       markerClusters[color] = L.markerClusterGroup({
@@ -280,7 +301,7 @@
         '<span class="layer-control-blue">Groupes d\'appui</span>': markerClusters['blue'],
         '<span class="layer-control-red">Agenda de Jean-Luc Mélenchon</span>': markerClusters['red'],
         '<span class="layer-control-pink">Réunions publiques</span>': markerClusters['pink'],
-        '<span class="layer-control-together">Départs collectifs 23 septembre</span>': markerClusters['together']
+        '<span class="layer-control-casserole">Casserolades</span>': markerClusters['casserole']
       };
 
       L.control.layers(null, overlayMaps, {
@@ -315,8 +336,8 @@
       map.addLayer(markerClusters['pink']);
     if (eventTypes.indexOf('melenchon') > -1)
       map.addLayer(markerClusters['red']);
-    if (eventTypes.indexOf('departs') > -1)
-      map.addLayer(markerClusters['together']);
+    if (eventTypes.indexOf('casserolades') > -1)
+      map.addLayer(markerClusters['casserole']);
 
     /**
      * Step 2. Zoom and event requests
@@ -409,7 +430,7 @@
         evenements_locaux: 'green',
         reunions_circonscription: 'darkgreen',
         reunions_publiques: 'pink',
-        caravanes: 'together'
+        caravanes: 'casserole'
       };
 
       if (!event.coordinates) return;
