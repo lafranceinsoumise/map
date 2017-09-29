@@ -249,7 +249,8 @@
       zipcode: getQueryParameterByName('zipcode'),
       embedCirconscription: getQueryParameterByName('circonscriptions'),
       hidePanel: getQueryParameterByName('hide_panel'),
-      hideAddress: getQueryParameterByName('hide_address')
+      hideAddress: getQueryParameterByName('hide_address'),
+      geolocation: getQueryParameterByName('geolocation')
     };
 
     /**
@@ -342,7 +343,9 @@
     /**
      * Step 2. Zoom and event requests
      */
-    if (options.zipcode) zoomZipcode(options.zipcode);
+    if (options.geolocation) zoomGeolocation()
+    else if (options.zipcode) zoomZipcode(options.zipcode);
+
     if (options.embedEventId) {
       zoomAndLoadSingleEvent(options.embedEventId)
     } else {
@@ -354,26 +357,41 @@
       httpGetJson('//nominatim.openstreetmap.org/search/?format=json&q=' + zipcode + ',France', function(data) {
         if (data.length == 0) return;
 
-        map.setView([data[0].lat, data[0].lon], 12);
+        zoomCoordinates(data[0].lon, data[0].lat);
+      });
+    }
 
-        var resource = options.embedEventType.indexOf('groups') > -1 ? 'groups' : 'events';
-        var urlZoomApi = 'https://api.lafranceinsoumise.fr/legacy/' + resource + '/?order_by_distance_to=[' + data[0].lon + ',' + data[0].lat + ']';
-        // TODO
-        /* if (options.embedTags != '')
-          urlZoomApi += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }';
-          urlZoomApi += '}&max_results=4';*/
 
-        httpGetJson(urlZoomApi, function(data) {
-            if (data._items.length == 0) return;
-            // Coordinates of rectangle around 4 groups.
-            var bounds = map.getBounds();
-            for (var i = 0; i < Math.min(data._items.length, 5); i++) {
-              bounds.extend(L.latLng(data._items[i].coordinates.coordinates[1], data._items[i].coordinates.coordinates[0]));
-            }
+    function zoomGeolocation() {
+      if (!'geolocation' in navigator) {
+        return;
+      }
+      console.log('reached')
+      navigator.geolocation.getCurrentPosition(function(position) {
+        zoomCoordinates(position.coords.longitude, position.coords.latitude);
+      });
+    }
 
-            console.log('Gonna fit bounds.')
-            map.fitBounds(bounds, {padding: [0, 0]});
-        });
+    function zoomCoordinates(lon, lat) {
+      map.setView([lat, lon], 12);
+
+      var resource = options.embedEventType.indexOf('groups') > -1 ? 'groups' : 'events';
+      var urlZoomApi = 'https://api.lafranceinsoumise.fr/legacy/' + resource + '/?order_by_distance_to=[' + lon + ',' + lat + ']';
+      // TODO
+      /* if (options.embedTags != '')
+        urlZoomApi += ',"tags": {"$elemMatch": {"$in": ' + JSON.stringify(options.embedTags) + '} }';
+        urlZoomApi += '}&max_results=4';*/
+
+      httpGetJson(urlZoomApi, function(data) {
+          if (data._items.length == 0) return;
+          // Coordinates of rectangle around 4 groups.
+          var bounds = map.getBounds();
+          for (var i = 0; i < Math.min(data._items.length, 5); i++) {
+            bounds.extend(L.latLng(data._items[i].coordinates.coordinates[1], data._items[i].coordinates.coordinates[0]));
+          }
+
+          console.log('Gonna fit bounds.')
+          map.fitBounds(bounds, {padding: [0, 0]});
       });
     }
 

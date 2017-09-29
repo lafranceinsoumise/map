@@ -32,3 +32,4 @@ Example :
 *  `hide_address` : 0 or 1, hide the search bar. Default value: 0.
 *  `borderfit` : fix the limit of the map, provide a parameter like: maxlat,maxlong,minlat,minlong. Caution, does not work with zipcode option.
 * `event_id` : an event ID and a resource name (event or group), for example `9999,events` to display single on the map
+* `geolocation` : set to 1 to try to zoom automatically on user area
