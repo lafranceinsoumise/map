@@ -420,7 +420,7 @@
       if (!group.coordinates) return;
 
       var marker = L.marker([group.coordinates.coordinates[1], group.coordinates.coordinates[0]]);
-      marker.bindPopup('<a href="http://www.jlm2017.fr' + group.path + '" class="maplink maplinkblue" target="_blank">' + group.name + '</a><br/>Groupe d\'appui');
+      marker.bindPopup('<a href="https://agir.lafranceinsoumise.fr/groupes/' + group.id + '/" class="maplink maplinkblue" target="_blank">' + group.name + '</a><br/>Groupe d\'appui');
       markerClusters['blue'].addLayer(marker);
     }
 
@@ -439,7 +439,7 @@
       var marker = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
         icon: icons[colors[event.calendar]]
       });
-      marker.bindPopup('<a href="http://www.jlm2017.fr' + event.path + '" class="maplink maplink' + colors[event.calendar] +
+      marker.bindPopup('<a href="https://agir.lafranceinsoumise.fr/evenements/' + event.id + '/" class="maplink maplink' + colors[event.calendar] +
         '" target="_blank">' + event.name + '</a><br />le ' + new Date(event.start_time).toLocaleString());
       markerClusters[colors[event.calendar]].addLayer(marker);
     }
