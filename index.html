@@ -366,9 +366,12 @@
       if (!'geolocation' in navigator) {
         return;
       }
-      console.log('reached')
       navigator.geolocation.getCurrentPosition(function(position) {
         zoomCoordinates(position.coords.longitude, position.coords.latitude);
+      }, function() {console.log('Géolocalisation impossible')}, {
+        maximumAge: 0,
+        timeout: 5000,
+        enableHighAccuracy: true
       });
     }
 
