@@ -243,7 +243,7 @@
     var options = {
       noCluster: getQueryParameterByName('no_cluster'),
       borderfit: (getQueryParameterByName('borderfit') || '41.783787,9.587328,51.352263,-4.627801').split(','),
-      embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques,casserolades',
+      embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,melenchon,reunions_publiques',
       embedTags: (getQueryParameterByName('tags') || '').split(','),
       embedEventId: getQueryParameterByName('event_id') || '',
       zipcode: getQueryParameterByName('zipcode'),
@@ -280,7 +280,7 @@
 
     var markerClusters = {};
     // evenements_locaix, reunions_circonscription, reunions_publiques, groups, agenda_melenchon
-    var markerClusterColors = ['green', 'darkgreen', 'pink', 'blue', 'red', 'casserole'];
+    var markerClusterColors = ['green', 'darkgreen', 'pink', 'blue', 'red'];
     var clusterColor;
     markerClusterColors.forEach(function(color) {
       markerClusters[color] = L.markerClusterGroup({
@@ -301,8 +301,7 @@
         '<span class="layer-control-green">Événements locaux</span>': markerClusters['green'],
         '<span class="layer-control-blue">Groupes d\'appui</span>': markerClusters['blue'],
         '<span class="layer-control-red">Agenda de Jean-Luc Mélenchon</span>': markerClusters['red'],
-        '<span class="layer-control-pink">Réunions publiques</span>': markerClusters['pink'],
-        '<span class="layer-control-casserole">Casserolades</span>': markerClusters['casserole']
+        '<span class="layer-control-pink">Réunions publiques</span>': markerClusters['pink']
       };
 
       L.control.layers(null, overlayMaps, {
@@ -337,8 +336,6 @@
       map.addLayer(markerClusters['pink']);
     if (eventTypes.indexOf('melenchon') > -1)
       map.addLayer(markerClusters['red']);
-    if (eventTypes.indexOf('casserolades') > -1)
-      map.addLayer(markerClusters['casserole']);
 
     /**
      * Step 2. Zoom and event requests
@@ -450,8 +447,7 @@
         melenchon: 'red',
         evenements_locaux: 'green',
         reunions_circonscription: 'darkgreen',
-        reunions_publiques: 'pink',
-        caravanes: 'casserole'
+        reunions_publiques: 'pink'
       };
 
       if (!event.coordinates) return;
