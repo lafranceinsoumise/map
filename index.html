@@ -438,7 +438,7 @@
       if (!group.coordinates) return;
 
       var marker = L.marker([group.coordinates.coordinates[1], group.coordinates.coordinates[0]]);
-      marker.bindPopup('<a href="https://agir.lafranceinsoumise.fr/groupes/' + group.id + '/" class="maplink maplinkblue" target="_blank">' + group.name + '</a><br/>Groupe d\'appui');
+      marker.bindPopup('<a href="https://agir.lafranceinsoumise.fr/groupes/' + group.id + '/" class="maplink maplinkblue" target="_blank">' + group.name + '</a><br/>' + group.tags.join(', '));
       markerClusters['blue'].addLayer(marker);
     }
 
