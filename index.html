@@ -401,6 +401,7 @@
       var url ='https://api.lafranceinsoumise.fr/legacy/' + resource + '/' + id;
       httpGetJson(url, function(event) {
         if (!event.coordinates) return;
+        event.id = event._id;
 
         map.setView([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], 16);
         if (resource === 'groups') {
