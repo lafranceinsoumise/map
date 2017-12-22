@@ -86,13 +86,8 @@
       color: rgb(155, 10, 116);
     }
 
-    a.maplinktogether,
-    .layer-control-together {
-      color: #c9462c;
-    }
-
-    a.maplinktogether,
-    .layer-control-casserole {
+    a.maplinkpartielles,
+    .layer-control-partielles {
       color: #c9462c;
     }
 
@@ -172,11 +167,11 @@
       font-weight: bold;
     }
 
-    .marker-cluster-casserole {
+    .marker-cluster-partielles {
       background-color: rgba(204, 53, 53, 0.6);
     }
 
-    .marker-cluster-casserole div {
+    .marker-cluster-partielles div {
       background-color: rgba(200, 70, 40, 0.6);
       color: #ffffff;
       font-weight: bold;
@@ -243,7 +238,7 @@
     var options = {
       noCluster: getQueryParameterByName('no_cluster'),
       borderfit: (getQueryParameterByName('borderfit') || '41.783787,9.587328,51.352263,-4.627801').split(','),
-      embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,national',
+      embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,national,partielles',
       embedTags: (getQueryParameterByName('tags') || '').split(','),
       embedEventId: getQueryParameterByName('event_id') || '',
       zipcode: getQueryParameterByName('zipcode'),
@@ -269,18 +264,18 @@
 
     // Create icons and cluster
     var icons = {};
-    var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink', 'casserole'];
+    var iconColors = ['red', 'green', 'phi', 'darkgreen', 'pink', 'partielles'];
     for (var i = 0; i < iconColors.length; i++) {
       icons[iconColors[i]] = L.icon({
         iconUrl: 'marker-icon-' + iconColors[i] + '.png',
-        iconAnchor: iconColors[i] === 'casserole' ? [14, 16] : [12, 41],
-        popupAnchor: iconColors[i] === 'casserole' ? [0, -16] : [0, -41]
+        iconAnchor: iconColors[i] === 'partielles' ? [14, 16] : [12, 41],
+        popupAnchor: iconColors[i] === 'partielles' ? [0, -16] : [0, -41]
       });
     }
 
     var markerClusters = {};
-    // evenements_locaix, national, groups
-    var markerClusterColors = ['green', 'blue', 'red'];
+    // evenements_locaux, national, groups, partielles
+    var markerClusterColors = ['green', 'blue', 'red', 'partielles'];
     var clusterColor;
     markerClusterColors.forEach(function(color) {
       markerClusters[color] = L.markerClusterGroup({
@@ -300,7 +295,8 @@
       var overlayMaps = {
         '<span class="layer-control-green">Événements locaux</span>': markerClusters['green'],
         '<span class="layer-control-blue">Groupes d\'appui</span>': markerClusters['blue'],
-        '<span class="layer-control-red">Orateurs nationaux et députés</span>': markerClusters['red']
+        '<span class="layer-control-red">Orateurs nationaux et députés</span>': markerClusters['red'],
+        '<span class="layer-control-casserole">Élections partielles</span>': markerClusters['partielles']
       };
 
       L.control.layers(null, overlayMaps, {
@@ -329,10 +325,10 @@
       map.addLayer(markerClusters['blue']);
     if (eventTypes.indexOf('evenements_locaux') > -1)
       map.addLayer(markerClusters['green']);
-    if (eventTypes.indexOf('reunions_circonscription') > -1)
-      map.addLayer(markerClusters['darkgreen']);
     if (eventTypes.indexOf('national') > -1)
       map.addLayer(markerClusters['red']);
+    if (eventTypes.indexOf('partielles') > -1)
+      map.addLayer(markerClusters['partielles']);
 
     /**
      * Step 2. Zoom and event requests
@@ -435,9 +431,17 @@
     function addGroup(group) {
       if (!group.coordinates) return;
 
-      var marker = L.marker([group.coordinates.coordinates[1], group.coordinates.coordinates[0]]);
-      marker.bindPopup('<a href="https://agir.lafranceinsoumise.fr/groupes/' + group.id + '/" class="maplink maplinkblue" target="_blank">' + group.name + '</a><br/>' + group.tags.join(', '));
-      markerClusters['blue'].addLayer(marker);
+      var className = group.tags.indexOf('Élection partielle') === -1 ? 'blue' : 'partielles';
+
+      var options = {};
+
+      if (className === 'partielles') {
+        options.icon = icons[className];
+      }
+
+      var marker = L.marker([group.coordinates.coordinates[1], group.coordinates.coordinates[0]], options);
+      marker.bindPopup('<a href="https://agir.lafranceinsoumise.fr/groupes/' + group.id + '/" class="maplink maplink' + className + '" target="_blank">' + group.name + '</a><br/>' + group.tags.join(', '));
+      markerClusters[className].addLayer(marker);
     }
 
     function addCalendarEvent(event) {
