@@ -239,7 +239,7 @@
       noCluster: getQueryParameterByName('no_cluster'),
       borderfit: (getQueryParameterByName('borderfit') || '41.783787,9.587328,51.352263,-4.627801').split(','),
       embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,national,partielles',
-      embedTags: (getQueryParameterByName('tags') || '').split(','),
+      embedTags: getQueryParameterByName('tags') ? getQueryParameterByName('tags').split(',') : [],
       embedEventId: getQueryParameterByName('event_id') || '',
       zipcode: getQueryParameterByName('zipcode'),
       embedCirconscription: getQueryParameterByName('circonscriptions'),
@@ -452,6 +452,7 @@
 
       if (!event.coordinates) return;
       if (!icons[colors[event.calendar]]) return;
+      if (options.embedTags.length && !options.embedTags.some(function(t) {return event.tags.indexOf(t) !== -1;})) return;
 
       var marker = L.marker([event.coordinates.coordinates[1], event.coordinates.coordinates[0]], {
         icon: icons[colors[event.calendar]]
